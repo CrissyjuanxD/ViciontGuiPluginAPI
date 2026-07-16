@@ -1,0 +1,6 @@
+name: ViciontGuiPlugin
+main: com.crissyjuanxd.viciontguiplugin.ViciontGuiPlugin
+version: ${project.version}
+api-version: 1.21
+author: CrissyjuanxD
+description: Motor genérico de GUIs cliente-servidor para el mod ViciontGuis. No incluye lógica de contenido — eso lo aporta el plugin que dependa de este.
