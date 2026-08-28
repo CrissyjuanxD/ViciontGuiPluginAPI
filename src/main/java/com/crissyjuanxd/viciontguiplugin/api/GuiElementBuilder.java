@@ -2,15 +2,15 @@ package com.crissyjuanxd.viciontguiplugin.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-// Construye un elemento individual: custom_button, item_slot, text, rich_text, entity, image, invisible_button
 public final class GuiElementBuilder {
     private final JsonObject json = new JsonObject();
     private final List<JsonObject> tooltip = new ArrayList<>();
     private JsonArray richMessage;
+    private String textAlign = "center";
 
     private GuiElementBuilder() {}
 
@@ -23,7 +23,7 @@ public final class GuiElementBuilder {
 
     public static GuiElementBuilder button(String id, String texture, String action) {
         GuiElementBuilder b = create(id, "custom_button").texture(texture);
-        if (action != null) b.action(action); // sin esto, "action": null rompía el parseo en el cliente
+        if (action != null) b.action(action);
         return b;
     }
 
@@ -51,46 +51,103 @@ public final class GuiElementBuilder {
         return create(id, "entity").entityData(entityId, entityName, entityScale);
     }
 
-    public GuiElementBuilder anchor(String anchor) { json.addProperty("anchor", anchor); return this; }
-    public GuiElementBuilder position(int x, int y) { json.addProperty("x", x); json.addProperty("y", y); return this; }
-    public GuiElementBuilder size(int width, int height) { json.addProperty("width", width); json.addProperty("height", height); return this; }
-    public GuiElementBuilder textureSize(int texWidth, int texHeight) { json.addProperty("texture_width", texWidth); json.addProperty("texture_height", texHeight); return this; }
-    public GuiElementBuilder texture(String texture) { json.addProperty("texture", texture); return this; }
-    public GuiElementBuilder action(String action) { json.addProperty("action", action); return this; }
-    public GuiElementBuilder itemId(String itemId) { json.addProperty("item_id", itemId); return this; }
-    public GuiElementBuilder customModelData(int cmd) { json.addProperty("custom_model_data", cmd); return this; }
+    public GuiElementBuilder hoverSound(String sound, float pitch, float volume) {
+        this.json.addProperty("hover_sound", sound);
+        this.json.addProperty("hover_pitch", pitch);
+        this.json.addProperty("hover_volume", volume);
+        return this;
+    }
+
+    public GuiElementBuilder clickSound(String sound, float pitch, float volume) {
+        this.json.addProperty("click_sound", sound);
+        this.json.addProperty("click_pitch", pitch);
+        this.json.addProperty("click_volume", volume);
+        return this;
+    }
+
+    public GuiElementBuilder anchor(String anchor) {
+        this.json.addProperty("anchor", anchor);
+        return this;
+    }
+
+    public GuiElementBuilder position(int x, int y) {
+        this.json.addProperty("x", x);
+        this.json.addProperty("y", y);
+        return this;
+    }
+
+    public GuiElementBuilder animSpeed(float speed) {
+        this.json.addProperty("anim_speed", speed);
+        return this;
+    }
+
+    public GuiElementBuilder size(int width, int height) {
+        this.json.addProperty("width", width);
+        this.json.addProperty("height", height);
+        return this;
+    }
+
+    public GuiElementBuilder textureSize(int texWidth, int texHeight) {
+        this.json.addProperty("texture_width", texWidth);
+        this.json.addProperty("texture_height", texHeight);
+        return this;
+    }
+
+    public GuiElementBuilder texture(String texture) {
+        this.json.addProperty("texture", texture);
+        return this;
+    }
+
+    public GuiElementBuilder action(String action) {
+        this.json.addProperty("action", action);
+        return this;
+    }
+
+    public GuiElementBuilder itemId(String itemId) {
+        this.json.addProperty("item_id", itemId);
+        return this;
+    }
+
+    public GuiElementBuilder customModelData(int cmd) {
+        this.json.addProperty("custom_model_data", cmd);
+        return this;
+    }
 
     public GuiElementBuilder scale(float scale) {
-        json.addProperty("scale", scale);
+        this.json.addProperty("scale", scale);
         return this;
     }
 
     public GuiElementBuilder outline(boolean outline) {
-        json.addProperty("outline", outline);
+        this.json.addProperty("outline", outline);
         return this;
     }
 
     public GuiElementBuilder entityData(String entityId, String entityName, int scale) {
-        json.addProperty("entity_id", entityId);
-        if (entityName != null) json.addProperty("entity_name", entityName);
-        json.addProperty("entity_scale", scale);
+        this.json.addProperty("entity_id", entityId);
+        if (entityName != null) this.json.addProperty("entity_name", entityName);
+        this.json.addProperty("entity_scale", scale);
         return this;
     }
 
     public GuiElementBuilder textContent(String text, String color, float scale, boolean bold) {
-        json.addProperty("text", text);
-        json.addProperty("color", color);
-        json.addProperty("scale", scale);
-        json.addProperty("bold", bold);
+        this.json.addProperty("text", text);
+        this.json.addProperty("color", color);
+        this.json.addProperty("scale", scale);
+        this.json.addProperty("bold", bold);
         return this;
     }
 
-    /** message: JsonArray con formato de JSON text component de vanilla (igual que un tellraw). */
+    public GuiElementBuilder textAlign(String align) {
+        this.textAlign = align;
+        return this;
+    }
+
     public GuiElementBuilder richMessage(JsonArray message, int maxWidth, Integer maxHeight, String color) {
         this.richMessage = message;
-        json.addProperty("max_width", maxWidth);
-        if (maxHeight != null) json.addProperty("max_height", maxHeight);
-        if (color != null) json.addProperty("color", color);
+        this.json.addProperty("max_width", maxWidth);
+        if (maxHeight != null) this.json.addProperty("max_height", maxHeight);
+        if (color != null) this.json.addProperty("color", color);
         return this;
     }
 
@@ -99,19 +156,25 @@ public final class GuiElementBuilder {
         line.addProperty("text", text);
         line.addProperty("color", color);
         line.addProperty("bold", bold);
-        tooltip.add(line);
+        this.tooltip.add(line);
         return this;
     }
 
     public JsonObject build() {
-        if (!tooltip.isEmpty()) {
+        if (!this.tooltip.isEmpty()) {
             JsonArray arr = new JsonArray();
-            tooltip.forEach(arr::add);
-            json.add("tooltip", arr);
+            this.tooltip.forEach(arr::add);
+            this.json.add("tooltip", arr);
         }
-        if (richMessage != null) {
-            json.add("message", richMessage);
+
+        if (this.richMessage != null) {
+            this.json.add("message", this.richMessage);
         }
-        return json;
+
+        if (this.json.has("type") && this.json.get("type").getAsString().equals("text")) {
+            this.json.addProperty("text_align", this.textAlign);
+        }
+
+        return this.json;
     }
 }

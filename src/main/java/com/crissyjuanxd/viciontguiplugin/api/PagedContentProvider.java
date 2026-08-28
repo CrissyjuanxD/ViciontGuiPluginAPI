@@ -1,12 +1,13 @@
 package com.crissyjuanxd.viciontguiplugin.api;
 
+import java.util.List;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-
-/** Implementa esto en TU plugin (misiones, recetas, lo que sea) para reusar la paginación genérica. */
 public interface PagedContentProvider {
     int getPageCount(Player player);
+
     List<GuiElementBuilder> buildPageElements(Player player, int page);
-    void applyBackground(GuiBuilder builder);
+
+    // NUEVO: Ahora recibe Player y la página
+    void applyBackground(GuiBuilder builder, Player player, int page);
 }
